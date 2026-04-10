@@ -7,19 +7,12 @@ module Lab02 where
 -}
 
 import Data.List
+import GHC.Internal.Base (VecElem(Int16ElemRep))
+import Distribution.Simple.Command (OptDescr(BoolOpt))
 
 -- 1) Dada la siguiente definición para representar árboles binarios:
 
 data BTree a = E | Leaf a | Node (BTree a) (BTree a)
-
-perf :: BTree Int
-perf = Node 
-                  (Node (Leaf 1) (Leaf 2)) 
-                  (Node (Leaf 3) (Leaf 4))
-
-barbol :: BTree Int
-barbol = Node (Leaf 1) (Node (Leaf 2) (Leaf 3))
-
 
 -- Definir las siguientes funciones:
 
@@ -130,8 +123,37 @@ g2bt (NodeG a hijos) = NodeB (bros hijos) a EB
       cantidad de elementos posibles para este nivel y en el nivel tercer hay 3 elementos siendo la cantidad máxima 4.
    -}
 
+arbol :: BinTree Int
+arbol = NodeB 
+                  (NodeB EB 2 (NodeB EB 4 EB)) 
+                  1 
+                  (NodeB (NodeB EB 5 EB) 3 (NodeB EB 6 EB))
+
+pow :: Int -> Int -> Int
+pow _ 0 = 1
+pow n m = n * (pow n (m-1))                  
+
+bfs :: BinTree a -> [[a]]
+bfs EB = []
+bfs raiz = aux [raiz]
+    where 
+        aux :: [BinTree a] -> [[a]]
+        aux [] = []
+        aux cola = let vals = [x | (NodeB _ x _) <- cola]
+                       hijos = concat[[l,r] | NodeB l _ r <- cola]
+                       in vals : aux (filter noteb hijos)
+        noteb :: BinTree a -> Bool
+        noteb EB = False
+        noteb _ = True
+
+
 dcn :: BinTree a -> [a]
-dcn = undefined
+dcn EB = []
+dcn raiz = let lista = (bfs raiz) in lista !! (aux lista 0)
+    where 
+        aux :: [[a]] -> Int -> Int
+        aux [] n = n-1
+        aux (x:xs) n = if (length x == (pow 2 n)) then (aux xs (n+1)) else n-1  --AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
 {- b) maxn, que dado un árbol devuelva la profundidad del nivel completo
       más profundo. Por ejemplo, maxn t = 2   -}
@@ -147,9 +169,3 @@ maxn = undefined
 
 podar :: BinTree a -> BinTree a
 podar = undefined
-
-
-
-
-
-
