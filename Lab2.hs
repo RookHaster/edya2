@@ -159,7 +159,8 @@ dcn raiz = let lista = (bfs raiz) in lista !! (aux lista 0)
       más profundo. Por ejemplo, maxn t = 2   -}
 
 maxn :: BinTree a -> Int
-maxn = undefined
+maxn EB = 0
+maxn (NodeB l _ r) = min (1+ maxn l) (1+ maxn r)
 
 {- c) podar, que elimine todas las ramas necesarias para transformar
       el árbol en un árbol completo con la máxima altura posible. 
@@ -168,4 +169,9 @@ maxn = undefined
 -}
 
 podar :: BinTree a -> BinTree a
-podar = undefined
+podar EB = EB
+podar raiz = aux raiz (maxn raiz)
+    where 
+        aux :: BinTree a -> Int -> BinTree a
+        aux _ 0 = EB
+        aux (NodeB l x r) n = (NodeB (aux l (n-1)) x (aux r (n-1)))
