@@ -4,7 +4,6 @@ import Data.List (sortBy)
 import Data.Ord (comparing)
 import Distribution.Simple.Setup (emptyHaddockProjectFlags)
 
-
 data NdTree p = Node (NdTree p) -- subarbol izquierdo
                     p           -- punto
                     (NdTree p)  -- subarbol derecho
@@ -37,7 +36,6 @@ instance Punto Punto3d where
     coord 0 (P3d(x,_,_)) = x
     coord 1 (P3d(_,y,_)) = y
     coord 2 (P3d(_,_,z)) = z
-
 
 fromList :: Punto p => [p] -> NdTree p
 fromList l = fromListAux l 0
@@ -119,6 +117,16 @@ inRegion p (x,y) = ((coord 0 p) >= (coord 0 x) && (coord 0 p) <= (coord 0 y) && 
                     || ((coord 0 p) >= (coord 0 y) && (coord 0 p) <= (coord 0 x) && (coord 1 p) <= (coord 1 y) && (coord 1 p) >= (coord 1 x)) -- x abajo y derecha de y
                     || ((coord 0 p) <= (coord 0 y) && (coord 0 p) >= (coord 0 x) && (coord 1 p) <= (coord 1 y) && (coord 1 p) >= (coord 1 x)) -- x abajo e izquierda de y
 
+ortogonalSearch :: NdTree Punto2d -> Rect -> [Punto2d]
+ortogonalSearch Empty rect = []
+ortogonalSearch (Node l p r  eje) (p1,p2) = if (coord eje (coordMax p1 p2 eje)) < (coord eje p) then ortogonalSearch l (p1,p2) else
+                                            if (coord eje (coordMin p1 p2 eje)) > (coord eje p) then ortogonalSearch r (p1,p2) else
+                                            if inRegion p (p1,p2) then [p] ++ ortogonalSearch l (p1,p2) ++ ortogonalSearch r (p1,p2) else
+                                                ortogonalSearch l (p1,p2) ++ ortogonalSearch r (p1,p2)
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 -- Node (Node (Node Empty (P2d (2.0,3.0)) Empty 2) (P2d (5.0,4.0)) (Node Empty (P2d (4.0,7.0)) Empty 2) 1) (P2d (7.0,2.0)) (Node (Node Empty (P2d (8.0,1.0)) Empty 2) (P2d (9.0,6.0)) Empty 1) 0
 
 p1 = P2d (2,3)
@@ -128,7 +136,11 @@ p4 = P2d (4,7)
 p5 = P2d (8,1)
 p6 = P2d (7,2)
 
-p7 = P2d (1,1)
+p7 = P2d (0,0)
+p8 = P2d (5,5)
+
+rec1 :: Rect
+rec1 = (p7,p8) 
 
 listatest = [p1,p2,p3,p4,p5,p6]
 listatest2 = [p5,p6,p7]
@@ -141,12 +153,6 @@ Node (NdTree p) -- subarbol izquierdo
                     (NdTree p)  -- subarbol derecho
                     Int  
 -}
-
-
-
-
-
-
 
 
 
