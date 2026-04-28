@@ -63,8 +63,6 @@ data T123 a = E123 | N2 a (T123 a) (T123 a) | N3 a a (T123 a) (T123 a) (T123 a) 
 rbt123 :: RBT a -> T123 a
 rbt123 E = E123
 rbt123 (T B (T R l1 y r1) x (T R l2 z r2)) = N4 x y z (rbt123 l1) (rbt123 r1) (rbt123 l2) (rbt123 r2)
-rbt123 (T B l@(T R l1 y r1) x r@(T B _ _ _)) = N3 x y (rbt123 l1) (rbt123 r1) (rbt123 r)
-rbt123 (T B l@(T B _ _ _) x r@(T R l1 y r1)) = N3 x y (rbt123 l) (rbt123 l1) (rbt123 r1)
-rbt123 (T B l@(T R l1 y r1) x E) = N3 x y (rbt123 l1) (rbt123 r1) E123
-rbt123 (T B E x r@(T R l1 y r1)) = N3 x y E123 (rbt123 l1) (rbt123 r1)
+rbt123 (T B (T R l1 y r1) x r) = N3 x y (rbt123 l1) (rbt123 r1) (rbt123 r)
+rbt123 (T B l x (T R l1 y r1)) = N3 x y (rbt123 l) (rbt123 l1) (rbt123 r1)
 rbt123 (T B l x r) = N2 x (rbt123 l) (rbt123 r)
