@@ -7,8 +7,6 @@ module Lab02 where
 -}
 
 import Data.List
-import GHC.Internal.Base (VecElem(Int16ElemRep))
-import Distribution.Simple.Command (OptDescr(BoolOpt))
 
 -- 1) Dada la siguiente definición para representar árboles binarios:
 
