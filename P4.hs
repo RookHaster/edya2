@@ -66,3 +66,53 @@ rbt123 (T B (T R l1 y r1) x (T R l2 z r2)) = N4 x y z (rbt123 l1) (rbt123 r1) (r
 rbt123 (T B (T R l1 y r1) x r) = N3 x y (rbt123 l1) (rbt123 r1) (rbt123 r)
 rbt123 (T B l x (T R l1 y r1)) = N3 x y (rbt123 l) (rbt123 l1) (rbt123 r1)
 rbt123 (T B l x r) = N2 x (rbt123 l) (rbt123 r)
+
+data Heap a = Eh | Nh Int a (Heap a) (Heap a) deriving(Show)
+
+merge :: Ord a => Heap a -> Heap a -> Heap a
+merge h1 Eh = h1
+merge Eh h2 = h2
+merge h1@(Nh _ x a1 b1) h2@(Nh _ y a2 b2) = if x <= y then makeH x a1 (merge b1 h2) else makeH y a2 (merge h1 b2)
+
+rank :: Heap a -> Int
+rank Eh = 0
+rank (Nh r _ _ _) = r
+
+makeH x a b = if rank a >= rank b then Nh (rank b + 1) x a b else Nh (rank a + 1) x b a
+
+fromList :: Ord a => [a] -> Heap a
+fromList [] = Eh
+fromList list = aux list Eh
+    where
+        aux :: Ord a => [a] -> Heap a -> Heap a
+        aux [] heap = heap
+        aux (x:xs) heap = aux xs (merge heap (Nh 0 x Eh Eh))
+
+data PHeaps a = Empty | Root a [PHeaps a] deriving(Show)
+
+isPHeap :: Ord a => PHeaps a -> Bool
+isPHeap Empty = True
+isPHeap (Root x ys) = aux x ys
+    where
+        aux x [] = True
+        aux x (Empty:xs) = aux x xs
+        aux x ((Root y ys):xs) = x <= y && aux x xs && aux y ys
+
+mergeH :: Ord a => PHeaps a -> PHeaps a -> PHeaps a
+mergeH h1 Empty = h1
+mergeH Empty h2 = h2
+mergeH h1@(Root x xs) h2@(Root y ys) = if x <= y then Root x (h2:xs) else Root y (h1:ys)
+
+insertH :: Ord a => PHeaps a -> a -> PHeaps a
+insertH raiz x = mergeH raiz (Root x [])
+
+concatH :: Ord a => [PHeaps a] -> PHeaps a
+concatH [] = Empty
+concatH (x:xs) = mergeH x (concatH xs)
+
+delMin :: Ord a => PHeaps a -> Maybe (a, PHeaps a)
+delMin Empty = Nothing
+delMin (Root x xs) = Just (x, concatH xs)
+
+ejemploHeap1 = Root 1 [Root 3 [Root 4 [], Root 5 []], Root 8 [Root 9 [], Root 10 [], Root 11 []], Root 2 [Root 6 [], Root 7 [Root 12 []]]]
+ejemploHeap2 = Root 2 [Root 5 [Root 10 [Root 20 [Root 40 []], Root 25 []], Root 15 [Root 30 []]], Root 8 [Root 12 []]]
